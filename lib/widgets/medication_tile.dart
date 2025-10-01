@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:mi_boti/models/med_model.dart';
 
@@ -15,7 +16,7 @@ class MedicationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = med.color ?? Theme.of(context).colorScheme.primary;
+    final color = Color(med.colorValue);
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,

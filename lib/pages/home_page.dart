@@ -1,5 +1,6 @@
+
 import 'package:flutter/material.dart';
-import 'package:mi_boti/models/med_model.dart';
+import 'package:mi_boti/repository/med_repository.dart';
 import 'package:mi_boti/pages/add_med_page.dart';
 import 'package:mi_boti/pages/history_page.dart';
 import 'package:mi_boti/pages/settings_page.dart';
@@ -30,25 +31,26 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final meds = widget.repo.meds;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Column(
           children: [
-            const Text('MIBOTIQUIN', style: TextStyle(letterSpacing: 1.1, fontWeight: FontWeight.bold)),
+            const Text('Mi Botiquín', style: TextStyle(letterSpacing: 1.1, fontWeight: FontWeight.bold)),
             Text('Recordatorio de medicamentos', style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
         leading: IconButton(
-          onPressed: () => Navigator.pushNamed(context, SettingsPage.route),
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage(repo: widget.repo))),
           icon: const Icon(Icons.settings),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.pushNamed(context, HistoryPage.route),
-            icon: const Icon(Icons.history),
-          ),
-        ],
+        )//,
+        // actions: [
+        //   IconButton(
+        //     onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HistoryPage(repo: widget.repo))),
+        //     icon: const Icon(Icons.history),
+        //   ),
+        // ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -59,9 +61,57 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 10),
             Expanded(
               child: ListView.separated(
-                itemCount: widget.repo.meds.length,
+                itemCount: meds.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (_, i) => MedicationTile(med: widget.repo.meds[i]),
+                itemBuilder: (_, i) {
+                  final med = meds[i];
+                  return Dismissible(
+                    key: ValueKey(med.key ?? '${med.name}-$i'),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      color: Colors.red,
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    confirmDismiss: (direction) async {
+                      return await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Eliminar'),
+                              content: Text('¿Eliminar "${med.name}" y su alarma?'),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                                FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Eliminar')),
+                              ],
+                            ),
+                          ) ??
+                          false;
+                    },
+                    onDismissed: (_) async {
+                      await widget.repo.removeMedication(med);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${med.name} eliminado')),
+                      );
+                    },
+                    child: GestureDetector(
+                      onTap: () {
+                        final int? medKey = med.key as int?;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AddMedPage(
+                              repo: widget.repo,
+                              existing: med,
+                              medKey: medKey,
+                            ),
+                          ),
+                        );
+                      },
+                      child: MedicationTile(med: med),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -72,13 +122,13 @@ class _HomePageState extends State<HomePage> {
         children: [
           FloatingActionButton.small(
             heroTag: 'history',
-            onPressed: () => Navigator.pushNamed(context, HistoryPage.route),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HistoryPage(repo: widget.repo))),
             child: const Icon(Icons.history),
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
             heroTag: 'add',
-            onPressed: () => Navigator.pushNamed(context, AddMedPage.route),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AddMedPage(repo: widget.repo))),
             child: const Icon(Icons.add),
           ),
         ],

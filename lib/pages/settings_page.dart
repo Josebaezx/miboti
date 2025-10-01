@@ -1,5 +1,6 @@
+
 import 'package:flutter/material.dart';
-import 'package:mi_boti/models/med_model.dart';
+import 'package:mi_boti/repository/med_repository.dart';
 
 class SettingsPage extends StatefulWidget {
   static const route = '/settings';
@@ -41,8 +42,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: const [
+                    const Row(
+                      children: [
                         Icon(Icons.notifications, size: 30),
                         SizedBox(width: 12),
                         Text('Hora de tomar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),

@@ -21,7 +21,6 @@ version: 1.0.0+1
 environment:
   sdk: ^3.9.0
 
-# Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
 # dependencies can be manually updated by changing the version numbers below to
@@ -30,21 +29,38 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path_provider: ^2.1.2
+  flutter_local_notifications: ^19.4.2
+  timezone: ^0.10.1
+  permission_handler: ^11.3.0
+  android_alarm_manager_plus: ^5.0.0
+  flutter_colorpicker: ^1.0.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-
+  intl: ^0.20.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  flutter_launcher_icons: ^0.14.4
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.6
   flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.4.6
+
+  # FLUTTER_ICONS DEBE ESTAR AL MISMO NIVEL QUE FLUTTER, NO DENTRO
+flutter_launcher_icons:
+  android: true
+  # ios: true
+  image_path: "assets/icons/logo.png"
+# adaptive_icon_background: "#FFFFFF"  # Opcional
+# adaptive_icon_foreground: "assets/icon/icon_foreground.png"  # Opcional
+# PASOS
+# flutter pub get
+# flutter pub run flutter_launcher_icons:main
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -61,6 +77,8 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/sounds/pastillas.mp3
+  #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -87,3 +105,18 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  android: true
+  ios: true
+  color: "#ffffff"
+
+  android_12:
+    color: "#ffffff"
+    # image: assets/icons/icon_logo3.png
+    branding: assets/icons/32.png
+
+
+# PASOS
+# flutter pub get
+# dart run flutter_native_splash:create
