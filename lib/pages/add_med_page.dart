@@ -30,30 +30,18 @@ class _AddMedPageState extends State<AddMedPage> {
   int _frequencyHours = 8; // 2,4,6,8
 
   Future<void> _openColorPicker() async {
-    Color temp = _color;
     await showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (ctx) => AlertDialog(
         title: const Text('Seleccionar color'),
-        content: SingleChildScrollView(
-          child: BlockPicker(
-            pickerColor: temp,
-            onColorChanged: (c) => temp = c,
-          ),
+        content: BlockPicker(
+          pickerColor: _color,
+          onColorChanged: (c) {
+            setState(() => _color = c);
+            Navigator.of(ctx).pop();
+          },
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () {
-              setState(() => _color = temp);
-              Navigator.of(ctx).pop();
-            },
-            child: const Text('Aceptar'),
-          ),
-        ],
       ),
     );
   }
@@ -179,20 +167,18 @@ class _AddMedPageState extends State<AddMedPage> {
                 children: [
                   const Text('Color:'),
                   const SizedBox(width: 8),
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: _color,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black26),
+                  InkWell(
+                    onTap: _openColorPicker,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: _color,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black26),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.color_lens_outlined),
-                    label: const Text('Elegir color'),
-                    onPressed: _openColorPicker,
                   ),
                 ],
               ),
