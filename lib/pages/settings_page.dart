@@ -19,7 +19,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ConfiguraciA3n')),
+      appBar: AppBar(title: const Text('Configuracion')),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -50,7 +50,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onChanged: (v) => setState(() => sound = v),
                       ),
                       SwitchListTile(
-                        title: const Text('VibraciA3n'),
+                        title: const Text('Vibracion'),
                         value: vibration,
                         onChanged: (v) => setState(() => vibration = v),
                       ),

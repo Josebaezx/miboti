@@ -419,7 +419,7 @@ class _HistoryEntryCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('$formattedDate  �?�  ${entry.medName}'),
+                  Text('$formattedDate - ${entry.medName}'),
                   const SizedBox(height: 4),
                   Text(
                     statusText,

@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         title: Column(
           children: [
             const Text(
-              'Mi BotiquA-n',
+              'Mi Botiquin',
               style: TextStyle(letterSpacing: 1.1, fontWeight: FontWeight.bold),
             ),
             Text(
