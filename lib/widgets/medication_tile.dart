@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mi_boti/models/med_model.dart';
 
@@ -32,13 +31,27 @@ class MedicationTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(med.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                Text(
+                  med.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 if (med.dose.isNotEmpty)
-                  Text(med.dose, style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color)),
+                  Text(
+                    med.dose,
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ),
               ],
             ),
           ),
-          Text(_formatTime(med.timeOfDay), style: const TextStyle(fontWeight: FontWeight.w600)),
+          Text(
+            _formatTime(med.timeOfDay),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
