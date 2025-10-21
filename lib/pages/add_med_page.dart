@@ -3,6 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:mi_boti/models/med_model.dart';
 import 'package:mi_boti/repository/med_repository.dart';
+import 'package:mi_boti/widgets/app_background.dart';
 
 class AddMedPage extends StatefulWidget {
   const AddMedPage({super.key, required this.repo, this.existing, this.medKey});
@@ -25,11 +26,14 @@ class _AddMedPageState extends State<AddMedPage> {
   Color _color = const Color(0xFF2563EB);
   int _frequencyHours = 8; // 2,4,6,8
 
+  void _onRepo() => setState(() {});
+
   bool get _isEditing => widget.existing != null && widget.medKey != null;
 
   @override
   void initState() {
     super.initState();
+    widget.repo.addListener(_onRepo);
     final existing = widget.existing;
     if (existing != null) {
       _nameCtrl.text = existing.name;
@@ -42,6 +46,7 @@ class _AddMedPageState extends State<AddMedPage> {
 
   @override
   void dispose() {
+    widget.repo.removeListener(_onRepo);
     _nameCtrl.dispose();
     _doseCtrl.dispose();
     super.dispose();
@@ -113,151 +118,160 @@ class _AddMedPageState extends State<AddMedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Editar medicamento' : 'Agregar medicamento'),
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final horizontalPadding = width >= 900
-                ? 48.0
-                : width >= 600
-                ? 32.0
-                : 16.0;
-            final maxContentWidth = width >= 600 ? 520.0 : double.infinity;
+    return AppBackground(
+      repo: widget.repo,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          title: Text(
+            _isEditing ? 'Editar medicamento' : 'Agregar medicamento',
+          ),
+        ),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final horizontalPadding = width >= 900
+                  ? 48.0
+                  : width >= 600
+                  ? 32.0
+                  : 16.0;
+              final maxContentWidth = width >= 600 ? 520.0 : double.infinity;
 
-            return SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                24,
-                horizontalPadding,
-                24,
-              ),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxContentWidth),
-                  child: Form(
-                    key: _form,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: _nameCtrl,
-                          decoration: const InputDecoration(
-                            labelText: 'Nombre del medicamento',
+              return SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  24,
+                  horizontalPadding,
+                  24,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxContentWidth),
+                    child: Form(
+                      key: _form,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            controller: _nameCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Nombre del medicamento',
+                            ),
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Requerido'
+                                : null,
                           ),
-                          validator: (v) => v == null || v.trim().isEmpty
-                              ? 'Requerido'
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _doseCtrl,
-                          decoration: const InputDecoration(
-                            labelText: 'Dosis (ej: 400 mg)',
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _doseCtrl,
+                            decoration: const InputDecoration(
+                              labelText: 'Dosis (ej: 400 mg)',
+                            ),
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Requerido'
+                                : null,
                           ),
-                          validator: (v) => v == null || v.trim().isEmpty
-                              ? 'Requerido'
-                              : null,
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: _pickTime,
-                                borderRadius: BorderRadius.circular(12),
-                                child: InputDecorator(
-                                  isEmpty: false,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Hora de inicio',
-                                    border: OutlineInputBorder(),
-                                    isDense: true,
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
+                          const SizedBox(height: 16),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: _pickTime,
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: InputDecorator(
+                                    isEmpty: false,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Hora de inicio',
+                                      border: OutlineInputBorder(),
+                                      isDense: true,
                                     ),
-                                    child: Text(_time.format(context)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                      ),
+                                      child: Text(_time.format(context)),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            IconButton(
-                              onPressed: _pickTime,
-                              icon: const Icon(Icons.access_time),
-                              tooltip: 'Seleccionar hora',
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<int>(
-                          value: _frequencyHours,
-                          decoration: const InputDecoration(
-                            labelText: 'Frecuencia (cada cuantas horas)',
+                              const SizedBox(width: 12),
+                              IconButton(
+                                onPressed: _pickTime,
+                                icon: const Icon(Icons.access_time),
+                                tooltip: 'Seleccionar hora',
+                              ),
+                            ],
                           ),
-                          items: const [2, 4, 6, 8]
-                              .map(
-                                (v) => DropdownMenuItem(
-                                  value: v,
-                                  child: Text('Cada $v horas'),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (v) =>
-                              setState(() => _frequencyHours = v ?? 8),
-                        ),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            const Text('Color:'),
-                            InkWell(
-                              onTap: _openColorPicker,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: _color,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.black26),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<int>(
+                            value: _frequencyHours,
+                            decoration: const InputDecoration(
+                              labelText: 'Frecuencia (cada cuantas horas)',
+                            ),
+                            items: const [2, 4, 6, 8]
+                                .map(
+                                  (v) => DropdownMenuItem(
+                                    value: v,
+                                    child: Text('Cada $v horas'),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) =>
+                                setState(() => _frequencyHours = v ?? 8),
+                          ),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              const Text('Color:'),
+                              InkWell(
+                                onTap: _openColorPicker,
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: _color,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.black26),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: _save,
-                            child: Text(
-                              _isEditing ? 'Guardar cambios' : 'Guardar',
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              onPressed: _save,
+                              child: Text(
+                                _isEditing ? 'Guardar cambios' : 'Guardar',
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancelar'),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Cancelar'),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

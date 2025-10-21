@@ -3,6 +3,7 @@ import 'package:mi_boti/pages/add_med_page.dart';
 import 'package:mi_boti/pages/history_page.dart';
 import 'package:mi_boti/pages/settings_page.dart';
 import 'package:mi_boti/repository/med_repository.dart';
+import 'package:mi_boti/widgets/app_background.dart';
 import 'package:mi_boti/widgets/medication_tile.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,171 +32,199 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final meds = widget.repo.meds;
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Column(
-          children: [
-            const Text(
-              'Mi Botiquin',
-              style: TextStyle(letterSpacing: 1.1, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Recordatorio de medicamentos',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-        leading: IconButton(
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => SettingsPage(repo: widget.repo)),
-          ),
-          icon: const Icon(Icons.settings),
-        ),
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final horizontalPadding = width >= 1100
-                ? 48.0
-                : width >= 720
-                ? 32.0
-                : 16.0;
-            final maxContentWidth = width >= 900
-                ? 720.0
-                : width >= 640
-                ? 560.0
-                : double.infinity;
-
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                16,
-                horizontalPadding,
-                16,
+    return AppBackground(
+      repo: widget.repo,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: Column(
+            children: [
+              const Text(
+                'Mi Botiquin',
+                style: TextStyle(
+                  letterSpacing: 1.1,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Hoy', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: meds.isEmpty
-                        ? const _EmptyMedicationState()
-                        : Align(
-                            alignment: Alignment.topCenter,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: maxContentWidth,
-                              ),
-                              child: ListView.separated(
-                                padding: EdgeInsets.zero,
-                                itemCount: meds.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 12),
-                                itemBuilder: (_, i) {
-                                  final med = meds[i];
-                                  return Dismissible(
-                                    key: ValueKey(med.key ?? '${med.name}-$i'),
-                                    direction: DismissDirection.endToStart,
-                                    background: Container(
-                                      alignment: Alignment.centerRight,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
+              Text(
+                'Recordatorio de medicamentos',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+          leading: IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SettingsPage(repo: widget.repo),
+              ),
+            ),
+            icon: const Icon(Icons.settings),
+          ),
+        ),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final horizontalPadding = width >= 1100
+                  ? 48.0
+                  : width >= 720
+                  ? 32.0
+                  : 16.0;
+              final maxContentWidth = width >= 900
+                  ? 720.0
+                  : width >= 640
+                  ? 560.0
+                  : double.infinity;
+
+              return Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  16,
+                  horizontalPadding,
+                  16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Hoy', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: meds.isEmpty
+                          ? const _EmptyMedicationState()
+                          : Align(
+                              alignment: Alignment.topCenter,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: maxContentWidth,
+                                ),
+                                child: ListView.separated(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: meds.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 12),
+                                  itemBuilder: (_, i) {
+                                    final med = meds[i];
+                                    return Dismissible(
+                                      key: ValueKey(
+                                        med.key ?? '${med.name}-$i',
                                       ),
-                                      color: Colors.red,
-                                      child: const Icon(
-                                        Icons.delete,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    confirmDismiss: (direction) async {
-                                      return await showDialog<bool>(
-                                            context: context,
-                                            builder: (ctx) => AlertDialog(
-                                              title: const Text('Eliminar'),
-                                              content: Text(
-                                                'Eliminar "${med.name}" y su alarma?',
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(ctx, false),
-                                                  child: const Text('Cancelar'),
-                                                ),
-                                                FilledButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(ctx, true),
-                                                  child: const Text('Eliminar'),
-                                                ),
-                                              ],
-                                            ),
-                                          ) ??
-                                          false;
-                                    },
-                                    onDismissed: (_) async {
-                                      await widget.repo.removeMedication(med);
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            '${med.name} eliminado',
-                                          ),
+                                      direction: DismissDirection.endToStart,
+                                      background: Container(
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
                                         ),
-                                      );
-                                    },
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        final int? medKey = med.key as int?;
-                                        Navigator.push(
+                                        color: Colors.red,
+                                        child: const Icon(
+                                          Icons.delete,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      confirmDismiss: (direction) async {
+                                        return await showDialog<bool>(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: const Text('Eliminar'),
+                                                content: Text(
+                                                  'Eliminar "${med.name}" y su alarma?',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                          ctx,
+                                                          false,
+                                                        ),
+                                                    child: const Text(
+                                                      'Cancelar',
+                                                    ),
+                                                  ),
+                                                  FilledButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                          ctx,
+                                                          true,
+                                                        ),
+                                                    child: const Text(
+                                                      'Eliminar',
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ) ??
+                                            false;
+                                      },
+                                      onDismissed: (_) async {
+                                        await widget.repo.removeMedication(med);
+                                        ScaffoldMessenger.of(
                                           context,
-                                          MaterialPageRoute(
-                                            builder: (_) => AddMedPage(
-                                              repo: widget.repo,
-                                              existing: med,
-                                              medKey: medKey,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              '${med.name} eliminado',
                                             ),
                                           ),
                                         );
                                       },
-                                      child: MedicationTile(med: med),
-                                    ),
-                                  );
-                                },
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          final int? medKey = med.key as int?;
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => AddMedPage(
+                                                repo: widget.repo,
+                                                existing: med,
+                                                medKey: medKey,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: MedicationTile(med: med),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                  ),
-                ],
-              ),
-            );
-          },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-      ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton.small(
-            heroTag: 'history',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => HistoryPage(repo: widget.repo)),
+        floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FloatingActionButton.small(
+              heroTag: 'history',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => HistoryPage(repo: widget.repo),
+                ),
+              ),
+              child: const Icon(Icons.history),
             ),
-            child: const Icon(Icons.history),
-          ),
-          const SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: 'add',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => AddMedPage(repo: widget.repo)),
+            const SizedBox(height: 10),
+            FloatingActionButton(
+              heroTag: 'add',
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddMedPage(repo: widget.repo),
+                ),
+              ),
+              child: const Icon(Icons.add),
             ),
-            child: const Icon(Icons.add),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

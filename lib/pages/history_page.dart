@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mi_boti/models/med_model.dart';
 import 'package:mi_boti/repository/med_repository.dart';
+import 'package:mi_boti/widgets/app_background.dart';
 
 class HistoryPage extends StatefulWidget {
   static const route = '/history';
@@ -50,201 +51,222 @@ class _HistoryPageState extends State<HistoryPage> {
       return okMed && okDate;
     }).toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Historial'),
-        actions: [
-          if (_hasFilters)
-            IconButton(
-              tooltip: 'Limpiar filtros',
-              icon: const Icon(Icons.filter_alt_off),
-              onPressed: () {
-                setState(() {
-                  _filterMedName = null;
-                  _filterDate = null;
-                });
-              },
-            ),
-          if (widget.repo.history.isNotEmpty)
-            IconButton(
-              tooltip: 'Borrar todo',
-              icon: const Icon(Icons.delete_sweep),
-              onPressed: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Eliminar todo el historial'),
-                    content: const Text(
-                      'Esta accion eliminara todas las entradas del historial. Deseas continuar?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(false),
-                        child: const Text('Cancelar'),
+    return AppBackground(
+      repo: widget.repo,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          title: const Text('Historial'),
+          actions: [
+            if (_hasFilters)
+              IconButton(
+                tooltip: 'Limpiar filtros',
+                icon: const Icon(Icons.filter_alt_off),
+                onPressed: () {
+                  setState(() {
+                    _filterMedName = null;
+                    _filterDate = null;
+                  });
+                },
+              ),
+            if (widget.repo.history.isNotEmpty)
+              IconButton(
+                tooltip: 'Borrar todo',
+                icon: const Icon(Icons.delete_sweep),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Eliminar todo el historial'),
+                      content: const Text(
+                        'Esta accion eliminara todas las entradas del historial. Deseas continuar?',
                       ),
-                      FilledButton(
-                        onPressed: () => Navigator.of(ctx).pop(true),
-                        child: const Text('Borrar todo'),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) {
-                  final previous = widget.repo.history
-                      .map(
-                        (e) => HistoryEntry(
-                          dateTime: e.dateTime,
-                          medName: e.medName,
-                          taken: e.taken,
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(false),
+                          child: const Text('Cancelar'),
                         ),
-                      )
-                      .toList();
-                  await widget.repo.clearHistory();
-                  if (!mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Historial eliminado'),
-                      action: SnackBarAction(
-                        label: 'Deshacer',
-                        onPressed: () async {
-                          for (final e in previous) {
-                            await widget.repo.addHistory(e);
-                          }
-                        },
-                      ),
+                        FilledButton(
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                          child: const Text('Borrar todo'),
+                        ),
+                      ],
                     ),
                   );
-                }
-              },
-            ),
-        ],
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            final horizontalPadding = width >= 1100
-                ? 48.0
-                : width >= 720
-                ? 32.0
-                : 16.0;
-            final maxContentWidth = width >= 1000
-                ? 840.0
-                : width >= 720
-                ? 640.0
-                : double.infinity;
-
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                16,
-                horizontalPadding,
-                16,
+                  if (confirm == true) {
+                    final previous = widget.repo.history
+                        .map(
+                          (e) => HistoryEntry(
+                            dateTime: e.dateTime,
+                            medName: e.medName,
+                            taken: e.taken,
+                          ),
+                        )
+                        .toList();
+                    await widget.repo.clearHistory();
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Historial eliminado'),
+                        action: SnackBarAction(
+                          label: 'Deshacer',
+                          onPressed: () async {
+                            for (final e in previous) {
+                              await widget.repo.addHistory(e);
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
-              child: Column(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxContentWidth),
-                      child: _buildFilters(context, maxContentWidth, medNames),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Divider(height: 0),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topCenter,
+          ],
+        ),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final horizontalPadding = width >= 1100
+                  ? 48.0
+                  : width >= 720
+                  ? 32.0
+                  : 16.0;
+              final maxContentWidth = width >= 1000
+                  ? 840.0
+                  : width >= 720
+                  ? 640.0
+                  : double.infinity;
+
+              return Padding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  16,
+                  horizontalPadding,
+                  16,
+                ),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
                       child: ConstrainedBox(
                         constraints: BoxConstraints(maxWidth: maxContentWidth),
-                        child: filtered.isEmpty
-                            ? _EmptyHistoryState(hasFilters: _hasFilters)
-                            : ListView.separated(
-                                padding: EdgeInsets.zero,
-                                itemCount: filtered.length,
-                                separatorBuilder: (_, __) =>
-                                    const SizedBox(height: 12),
-                                itemBuilder: (_, i) {
-                                  final entry = filtered[i];
-                                  final backup = HistoryEntry(
-                                    dateTime: entry.dateTime,
-                                    medName: entry.medName,
-                                    taken: entry.taken,
-                                  );
-                                  return Dismissible(
-                                    key: ValueKey(
-                                      'hist_${entry.key}_${entry.dateTime.millisecondsSinceEpoch}',
-                                    ),
-                                    direction: DismissDirection.endToStart,
-                                    background: Container(
-                                      alignment: Alignment.centerRight,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.errorContainer,
-                                        borderRadius: BorderRadius.circular(14),
-                                      ),
-                                      child: Icon(
-                                        Icons.delete_outline,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onErrorContainer,
-                                      ),
-                                    ),
-                                    onDismissed: (_) async {
-                                      await widget.repo.deleteHistory(entry);
-                                      if (!mounted) return;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: const Text(
-                                            'Entrada eliminada',
-                                          ),
-                                          action: SnackBarAction(
-                                            label: 'Deshacer',
-                                            onPressed: () async {
-                                              await widget.repo.addHistory(
-                                                backup,
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(14),
-                                        border: Border.all(
-                                          color: Theme.of(context).dividerColor,
-                                        ),
-                                      ),
-                                      padding: const EdgeInsets.all(16),
-                                      child: _HistoryEntryCard(
-                                        entry: entry,
-                                        formattedDate: _fmt(entry.dateTime),
-                                        onMarkTaken: () => widget.repo
-                                            .markHistory(entry, true),
-                                        onMarkSkipped: () => widget.repo
-                                            .markHistory(entry, false),
-                                        onDelete: () =>
-                                            _confirmDeleteEntry(entry, backup),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                        child: _buildFilters(
+                          context,
+                          maxContentWidth,
+                          medNames,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
+                    const SizedBox(height: 12),
+                    const Divider(height: 0),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: maxContentWidth,
+                          ),
+                          child: filtered.isEmpty
+                              ? _EmptyHistoryState(hasFilters: _hasFilters)
+                              : ListView.separated(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: filtered.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(height: 12),
+                                  itemBuilder: (_, i) {
+                                    final entry = filtered[i];
+                                    final backup = HistoryEntry(
+                                      dateTime: entry.dateTime,
+                                      medName: entry.medName,
+                                      taken: entry.taken,
+                                    );
+                                    return Dismissible(
+                                      key: ValueKey(
+                                        'hist_${entry.key}_${entry.dateTime.millisecondsSinceEpoch}',
+                                      ),
+                                      direction: DismissDirection.endToStart,
+                                      background: Container(
+                                        alignment: Alignment.centerRight,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.errorContainer,
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.delete_outline,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onErrorContainer,
+                                        ),
+                                      ),
+                                      onDismissed: (_) async {
+                                        await widget.repo.deleteHistory(entry);
+                                        if (!mounted) return;
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: const Text(
+                                              'Entrada eliminada',
+                                            ),
+                                            action: SnackBarAction(
+                                              label: 'Deshacer',
+                                              onPressed: () async {
+                                                await widget.repo.addHistory(
+                                                  backup,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          border: Border.all(
+                                            color: Theme.of(
+                                              context,
+                                            ).dividerColor,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.all(16),
+                                        child: _HistoryEntryCard(
+                                          entry: entry,
+                                          formattedDate: _fmt(entry.dateTime),
+                                          onMarkTaken: () => widget.repo
+                                              .markHistory(entry, true),
+                                          onMarkSkipped: () => widget.repo
+                                              .markHistory(entry, false),
+                                          onDelete: () => _confirmDeleteEntry(
+                                            entry,
+                                            backup,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
