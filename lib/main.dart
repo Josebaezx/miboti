@@ -26,7 +26,6 @@ Future<void> main() async {
   runApp(MiBotiquinApp(repo: repo));
 }
 
-
 class MiBotiquinApp extends StatelessWidget {
   final MedRepository repo;
   const MiBotiquinApp({super.key, required this.repo});
@@ -44,3 +43,5 @@ class MiBotiquinApp extends StatelessWidget {
     );
   }
 }
+
+//Pruebas y ajustes de test

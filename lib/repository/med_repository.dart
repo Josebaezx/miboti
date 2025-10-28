@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:mi_boti/models/background_config.dart';
 import 'package:mi_boti/models/med_model.dart';
 import 'package:mi_boti/services/notification_service.dart';
 
 class MedRepository extends ChangeNotifier {
   static const String medsBoxName = 'meds_box';
   static const String historyBoxName = 'history_box';
+  static const String settingsBoxName = 'settings_box';
+  static const String backgroundKey = 'background_config';
 
   late Box<Medication> _medsBox;
   late Box<HistoryEntry> _historyBox;
+  late Box _settingsBox;
+
+  BackgroundConfig _backgroundConfig = BackgroundConfig.defaults;
 
   Future<void> init() async {
     _medsBox = await Hive.openBox<Medication>(medsBoxName);
     _historyBox = await Hive.openBox<HistoryEntry>(historyBoxName);
+    _settingsBox = await Hive.openBox(settingsBoxName);
+    _backgroundConfig = BackgroundConfig.fromMap(
+      _settingsBox.get(backgroundKey) as Map?,
+    );
   }
 
   List<Medication> get meds => _medsBox.values.toList();
@@ -80,6 +90,14 @@ class MedRepository extends ChangeNotifier {
   /// Limpia todo el historial
   Future<void> clearHistory() async {
     await _historyBox.clear();
+    notifyListeners();
+  }
+
+  BackgroundConfig get backgroundConfig => _backgroundConfig;
+
+  Future<void> updateBackground(BackgroundConfig config) async {
+    _backgroundConfig = config;
+    await _settingsBox.put(backgroundKey, config.toMap());
     notifyListeners();
   }
 
